@@ -31,7 +31,7 @@ export async function POST(request: Request) {
     // Send email with retry logic
     let retries = 3;
     let emailSent = false;
-    let lastError:any = null;
+    let lastError: unknown = null;
     
     while (retries > 0 && !emailSent) {
       try {
@@ -50,8 +50,9 @@ export async function POST(request: Request) {
 
     if (!emailSent) {
       console.error('Final email send failure:', lastError);
+      const errorDetails = lastError instanceof Error ? lastError.message : String(lastError);
       return NextResponse.json(
-        { error: 'Failed to send email after multiple attempts', details: lastError?.message },
+        { error: 'Failed to send email after multiple attempts', details: errorDetails },
         { status: 500 }
       );
     }
@@ -60,10 +61,11 @@ export async function POST(request: Request) {
       { message: 'Enquiry sent successfully' },
       { status: 200 }
     );
-  } catch (error: any) {
+  } catch (error: unknown) {
     console.error('Enquiry processing error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
     return NextResponse.json(
-      { error: 'Internal server error', details: error.message },
+      { error: 'Internal server error', details: errorMessage },
       { status: 500 }
     );
   }

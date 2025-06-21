@@ -3,7 +3,15 @@
 import Image from 'next/image';
 import Link from 'next/link';
 
-export default function ItemCard({ item }:{item:any}) {
+interface Item {
+  _id: string;
+  name?: string;
+  type?: string;
+  coverImage?: string;
+}
+
+
+export default function ItemCard({ item }:{item:Item}) {
   return (
     <Link href={`/view-items/${item._id}`} className="group">
       <div className="bg-white rounded-lg shadow-md overflow-hidden transition-transform duration-300 group-hover:scale-105">
