@@ -7,17 +7,15 @@ async function getItem(id: string) {
   const db = await getDb();
   const doc = await db.collection('items').findOne({ _id: new ObjectId(id) });
   
-  // Convert MongoDB document to plain object (including _id conversion)
+  if (!doc) return null;
   return convertDocToPlainObject(doc);
 }
 
-interface PageProps {
-  params: {
-    id: string;
-  };
-}
-
-export default async function ItemDetailPage({ params }: PageProps) {
+export default async function ItemDetailPage({
+  params
+}: {
+  params: { id: string };
+}) {
   const item = await getItem(params.id);
 
   if (!item) {
