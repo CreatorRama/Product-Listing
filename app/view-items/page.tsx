@@ -38,7 +38,14 @@ function ErrorDisplay({ error }: { error: string }) {
 }
 
 export default async function ViewItemsPage() {
-  let items = [];
+
+  interface Item {
+  _id: string;
+  name?: string;
+  type?: string;
+  coverImage?: string;
+}
+  let items:Item[]=[]
   let error = null;
 
   try {
