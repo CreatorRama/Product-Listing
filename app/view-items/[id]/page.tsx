@@ -14,9 +14,11 @@ async function getItem(id: string) {
 export default async function ItemDetailPage({
   params
 }: {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }) {
-  const item = await getItem(params.id);
+  // Await the params promise to get the actual parameters
+  const { id } = await params;
+  const item = await getItem(id);
 
   if (!item) {
     return (
