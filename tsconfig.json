@@ -18,10 +18,11 @@
         "name": "next"
       }
     ],
+    "baseUrl": ".",  
     "paths": {
       "@/*": ["./*"]
     }
   },
-  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],
+  "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts", "app/api/items/route.js", "app/layout.tsx", "app/page.tsx"],
   "exclude": ["node_modules"]
 }
