@@ -1,4 +1,3 @@
-// app/view-items/[id]/page.tsx
 import ItemModal from '@/components/ItemModal';
 import { getDb } from '@/lib/db';
 import { ObjectId } from 'mongodb';
@@ -12,7 +11,13 @@ async function getItem(id: string) {
   return convertDocToPlainObject(doc);
 }
 
-export default async function ItemDetailPage({ params }: { params: { id: string } }) {
+interface PageProps {
+  params: {
+    id: string;
+  };
+}
+
+export default async function ItemDetailPage({ params }: PageProps) {
   const item = await getItem(params.id);
 
   if (!item) {
