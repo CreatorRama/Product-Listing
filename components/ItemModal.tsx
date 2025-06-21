@@ -41,11 +41,15 @@ export default function ItemModal({ item }: { item: Item }) {
       if (!response.ok) {
         throw new Error('Failed to send enquiry');
       }
-      
+
       toast.success('Enquiry sent successfully!');
       router.back();
-    } catch (error: any) {
-      toast.error(error.message);
+    } catch (error) {
+      let errorMessage = 'Failed to send enquiry';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      }
+      toast.error(errorMessage);
     } finally {
       setIsSubmitting(false);
     }
