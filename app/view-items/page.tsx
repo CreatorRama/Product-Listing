@@ -1,30 +1,40 @@
 import ItemCard from '@/components/ItemCard';
 import Link from 'next/link';
 import { Suspense } from 'react';
+import { getDb } from '@/lib/db';
+import { convertDocToPlainObject } from '@/lib/mongoUtils';
+
+// Add dynamic export to prevent static generation
+export const dynamic = 'force-dynamic';
 
 async function getItems() {
   try {
-    // Use absolute URL in production, relative in development
-    const baseUrl = process.env.NODE_ENV === 'production'
-      ? process.env.NEXT_PUBLIC_SITE_URL
-      : 'http://localhost:3000';
-    
-    const res = await fetch(`${baseUrl}/api/items`, {
-      cache: 'no-store',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    });
-    
-    if (!res.ok) {
-      throw new Error(`Failed to fetch items: ${res.status} ${res.statusText}`);
-    }
-    
-    return await res.json();
+    // Fetch directly from database instead of API route to avoid dynamic server usage
+    const db = await getDb();
+    const docs = await db.collection('items').find({}).toArray();
+    return docs.map(convertDocToPlainObject);
   } catch (error) {
     console.error('Error fetching items:', error);
-    throw new Error('Unable to connect to the server. Please try again later.');
+    return [];
   }
+}
+
+// Create a client component for the error state with retry button
+function ErrorDisplay({ error }: { error: string }) {
+  return (
+    <div className="text-center py-12">
+      <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded max-w-md mx-auto">
+        <p className="font-medium">Error loading items</p>
+        <p className="text-sm mt-1">{error}</p>
+        <Link 
+          href="/view-items"
+          className="mt-3 inline-block px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded text-sm transition"
+        >
+          Try Again
+        </Link>
+      </div>
+    </div>
+  );
 }
 
 export default async function ViewItemsPage() {
@@ -34,7 +44,7 @@ export default async function ViewItemsPage() {
   try {
     items = await getItems();
   } catch (err) {
-    error = err.message;
+    error = err instanceof Error ? err.message : 'An error occurred';
   }
 
   return (
@@ -45,18 +55,7 @@ export default async function ViewItemsPage() {
         </div>
         
         {error ? (
-          <div className="text-center py-12">
-            <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded max-w-md mx-auto">
-              <p className="font-medium">Error loading items</p>
-              <p className="text-sm mt-1">{error}</p>
-              <button 
-                onClick={() => window.location.reload()}
-                className="mt-3 px-4 py-2 bg-red-100 hover:bg-red-200 text-red-800 rounded text-sm transition"
-              >
-                Try Again
-              </button>
-            </div>
-          </div>
+          <ErrorDisplay error={error} />
         ) : items.length === 0 ? (
           <div className="text-center py-12">
             <p className="text-gray-500">No items found. Add some items to get started.</p>
